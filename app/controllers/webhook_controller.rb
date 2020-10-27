@@ -17,7 +17,7 @@ class WebhookController < ApplicationController
     unless client.validate_signature(body, signature)
       head 470
     end
-
+    
     events = client.parse_events_from(body)
     events.each { |event|
       case event
@@ -25,13 +25,13 @@ class WebhookController < ApplicationController
         case event.type
         when Line::Bot::Event::MessageType::Text
           message = {
-            type: 'text'
+            type: 'text',
           }
-          if (event.message['text'] == '頭が痛いです')
-            message['text'] = 'お大事に'
-          else
-            message['text'] = '元気そうですね！'
+          items = RakutenWebService::Ichiba::Item.search(keyword: "#{event.message['text']}", genreId: 558736, sort: '-reviewAverage')
+          medicines = items.first(5).map do |item|
+            "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
           end
+          message['text'] = "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n#{medicines.join}"
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
           response = client.get_message_content(event.message['id'])
