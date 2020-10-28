@@ -32,14 +32,17 @@ class WebhookController < ApplicationController
           begin
             items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENLE_ID, sort: '-reviewAverage')
             if items.count == 0
-              raise StandardError
+              raise ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n（例: 「頭痛」「吐き気」「発熱」）")
             end
             message['text'] = items.first(5).inject("症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n") do |result, item|
               result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
             end
-          rescue => exception
+          rescue RakutenWebService::WrongParameter => exception 
+            puts exception.inspect
+            message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
+          rescue ItemNotFoundError => exception
             puts exception
-            message['text'] = "もう一度症状を送ってください！\n（例: 「頭痛」「吐き気」「発熱」）"
+            message['text'] = exception.message
           end
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
@@ -50,5 +53,13 @@ class WebhookController < ApplicationController
       end
     }
     head :ok
+  end
+end
+
+class ItemNotFoundError < StandardError
+  attr_reader :message
+
+  def initialize(message)
+    @message = message
   end
 end
