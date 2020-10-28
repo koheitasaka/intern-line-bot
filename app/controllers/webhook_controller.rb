@@ -31,13 +31,9 @@ class WebhookController < ApplicationController
           }
           begin
             items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENLE_ID, sort: '-reviewAverage')
-            if items.count == 0
-              raise ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n（例: 「頭痛」「吐き気」「発熱」）")
-            end
-            message['text'] = items.first(5).inject("症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n") do |result, item|
-              result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
-            end
-          rescue RakutenWebService::WrongParameter => exception 
+            checkResponseSize(items)
+            message['text'] = parseResponse(items, "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n")
+          rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
             message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
           rescue ItemNotFoundError => exception
@@ -61,5 +57,17 @@ class ItemNotFoundError < StandardError
 
   def initialize(message)
     @message = message
+  end
+end
+
+def checkResponseSize(response)
+  if response.count == 0
+    raise ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n（例: 「頭痛」「吐き気」「発熱」）")
+  end
+end
+
+def parseResponse(response, message)
+  return response.first(5).inject(message) do |result, item|
+    result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
   end
 end
