@@ -2,6 +2,8 @@ require 'line/bot'
 
 class WebhookController < ApplicationController
   protect_from_forgery except: [:callback] # CSRF対策無効化
+  
+  GENLE_ID = 558736 ## 定数の切り出し方のベストプラクティス的なものがわからないので一旦ベタに書く
 
   def client
     @client ||= Line::Bot::Client.new { |config|
@@ -28,11 +30,13 @@ class WebhookController < ApplicationController
             type: 'text',
           }
           begin
-            items = RakutenWebService::Ichiba::Item.search(keyword: "#{event.message['text']}", genreId: 558736, sort: '-reviewAverage')
+            items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENLE_ID, sort: '-reviewAverage')
             medicines = items.first(5).map do |item|
               "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
             end
-            message['text'] = "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n#{medicines.join}"
+            message['text'] = items.first(5).inject("症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n") do |result, item|
+              result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
+            end
           rescue => exception
             puts exception
             message['text'] = "もう一度症状を送ってください！（例: 「頭痛」「吐き気」「発熱」）"
