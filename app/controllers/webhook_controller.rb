@@ -27,11 +27,16 @@ class WebhookController < ApplicationController
           message = {
             type: 'text',
           }
-          items = RakutenWebService::Ichiba::Item.search(keyword: "#{event.message['text']}", genreId: 558736, sort: '-reviewAverage')
-          medicines = items.first(5).map do |item|
-            "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
+          begin
+            items = RakutenWebService::Ichiba::Item.search(keyword: "#{event.message['text']}", genreId: 558736, sort: '-reviewAverage')
+            medicines = items.first(5).map do |item|
+              "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
+            end
+            message['text'] = "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n#{medicines.join}"
+          rescue => exception
+            puts exception
+            message['text'] = "もう一度症状を送ってください！（例: 「頭痛」「吐き気」「発熱」）"
           end
-          message['text'] = "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n#{medicines.join}"
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
           response = client.get_message_content(event.message['id'])
