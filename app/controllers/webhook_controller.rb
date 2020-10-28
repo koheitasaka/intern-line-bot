@@ -31,15 +31,15 @@ class WebhookController < ApplicationController
           }
           begin
             items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENLE_ID, sort: '-reviewAverage')
-            medicines = items.first(5).map do |item|
-              "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
+            if items.count == 0
+              raise StandardError
             end
             message['text'] = items.first(5).inject("症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n") do |result, item|
               result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
             end
           rescue => exception
             puts exception
-            message['text'] = "もう一度症状を送ってください！（例: 「頭痛」「吐き気」「発熱」）"
+            message['text'] = "もう一度症状を送ってください！\n（例: 「頭痛」「吐き気」「発熱」）"
           end
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
