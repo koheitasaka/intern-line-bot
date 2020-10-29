@@ -9,6 +9,6 @@ module RubyGettingStarted
     config.load_defaults "6.0"
     config.autoloader = :classic
     config.autoload_paths += %W(#{config.root}/app/exceptions/**)
-    config.autoload_paths += %W(#{config.root}/app/services)
+    config.autoload_paths += %W(#{config.root}/app/services/**/**)
   end
 end

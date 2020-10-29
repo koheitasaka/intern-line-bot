@@ -2,7 +2,7 @@ require 'line/bot'
 
 class WebhookController < ApplicationController
   protect_from_forgery except: [:callback] # CSRF対策無効化
-  
+
   GENRE_ID = 558736
 
   def client
@@ -30,10 +30,10 @@ class WebhookController < ApplicationController
             type: 'text',
           }
           begin
-            items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENRE_ID, sort: '-reviewAverage')
-            checkResponseSize(items)
-            message['text'] = parseResponse(items, "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n")
-            puts RakutenService::Reuest.new(event.message['text'])
+            items = RakutenService::Request.exec(event.message['text'])
+            parsed_items = RakutenService::Parse.exec(items)
+            reply_message = RakutenService::CreateMessage.exec(event.message['text'], parsed_items)
+            message['text'] = reply_message
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
             message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
@@ -50,19 +50,5 @@ class WebhookController < ApplicationController
       end
     }
     head :ok
-  end
-end
-
-private
-
-def checkResponseSize(response)
-  if response.count == 0
-    raise ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n（例: 「頭痛」「吐き気」「発熱」）")
-  end
-end
-
-def parseResponse(response, message)
-  return response.first(5).inject(message) do |result, item|
-    result + "#{item['itemName']}, ¥#{item.price} \n #{item['itemUrl']} \n"
   end
 end
