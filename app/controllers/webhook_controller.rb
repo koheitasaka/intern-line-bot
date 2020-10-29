@@ -3,7 +3,7 @@ require 'line/bot'
 class WebhookController < ApplicationController
   protect_from_forgery except: [:callback] # CSRF対策無効化
   
-  GENRE_ID = 558736 ## 定数の切り出し方のベストプラクティス的なものがわからないので一旦ベタに書く
+  GENRE_ID = 558736
 
   def client
     @client ||= Line::Bot::Client.new { |config|
@@ -53,14 +53,6 @@ class WebhookController < ApplicationController
 end
 
 private
-
-class ItemNotFoundError < StandardError
-  attr_reader :message
-
-  def initialize(message)
-    @message = message
-  end
-end
 
 def checkResponseSize(response)
   if response.count == 0
