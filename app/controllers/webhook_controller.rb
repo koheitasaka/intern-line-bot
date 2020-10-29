@@ -33,7 +33,7 @@ class WebhookController < ApplicationController
             items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENRE_ID, sort: '-reviewAverage')
             checkResponseSize(items)
             message['text'] = parseResponse(items, "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n")
-            puts Reuest.new(event.message['text'])
+            puts RakutenService::Reuest.new(event.message['text'])
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
             message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
