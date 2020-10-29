@@ -3,7 +3,7 @@ require 'line/bot'
 class WebhookController < ApplicationController
   protect_from_forgery except: [:callback] # CSRF対策無効化
   
-  GENLE_ID = 558736 ## 定数の切り出し方のベストプラクティス的なものがわからないので一旦ベタに書く
+  GENRE_ID = 558736 ## 定数の切り出し方のベストプラクティス的なものがわからないので一旦ベタに書く
 
   def client
     @client ||= Line::Bot::Client.new { |config|
@@ -19,7 +19,7 @@ class WebhookController < ApplicationController
     unless client.validate_signature(body, signature)
       head 470
     end
-    
+
     events = client.parse_events_from(body)
     events.each { |event|
       case event
@@ -30,7 +30,7 @@ class WebhookController < ApplicationController
             type: 'text',
           }
           begin
-            items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENLE_ID, sort: '-reviewAverage')
+            items = RakutenWebService::Ichiba::Item.search(keyword: event.message['text'], genreId: GENRE_ID, sort: '-reviewAverage')
             checkResponseSize(items)
             message['text'] = parseResponse(items, "症状:「#{event.message['text']}」にはこちらの薬がおすすめです！\n\n")
           rescue RakutenWebService::WrongParameter => exception
@@ -51,6 +51,8 @@ class WebhookController < ApplicationController
     head :ok
   end
 end
+
+private
 
 class ItemNotFoundError < StandardError
   attr_reader :message
