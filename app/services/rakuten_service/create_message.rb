@@ -33,7 +33,6 @@ module RakutenService
           ]
         }
       end
-      message = 
       {
         "type": "template",
         "altText": "こちらの薬がおすすめです！",
@@ -44,7 +43,6 @@ module RakutenService
           "imageSize": "cover"
         }
       }
-      message
     end
   end
 end
