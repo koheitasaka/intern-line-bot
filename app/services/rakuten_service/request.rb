@@ -18,7 +18,7 @@ module RakutenService
 
     def check_items_size(items)
       if items.count == 0
-        return ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n（例: 「頭痛」「吐き気」「発熱」）")
+        raise ItemNotFoundError.new("該当する医薬品が見つかりませんでした。\n もう一度送信内容を確かめてみてください！\n\n↓こんな感じで送ってね！↓\n（例: 「頭痛」「吐き気」「発熱」）")
       end
     end
   end
