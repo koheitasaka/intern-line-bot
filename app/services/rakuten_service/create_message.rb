@@ -15,7 +15,7 @@ module RakutenService
 
     def create_message(message, items)
       medicines = items.map do | item |
-        "#{item[:name]}, ¥#{item[:price]} \n #{item[:itemUrl]} \n"
+        "#{item.name}, ¥#{item.price} \n #{item.url} \n"
       end
       "症状:「#{message}」にはこちらの薬がおすすめです！\n\n#{medicines.join()}"
     end

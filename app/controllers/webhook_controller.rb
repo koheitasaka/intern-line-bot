@@ -30,6 +30,9 @@ class WebhookController < ApplicationController
           begin
             items = RakutenService::Request.exec(event.message['text'])
             parsed_items = RakutenService::Parse.exec(items)
+            parsed_items = parsed_items.map do | item |
+              Medicine.new(item)
+            end
             reply_message = RakutenService::CreateMessage.exec(event.message['text'], parsed_items)
             message['text'] = reply_message
           rescue RakutenWebService::WrongParameter => exception
