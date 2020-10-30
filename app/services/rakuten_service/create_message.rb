@@ -15,7 +15,10 @@ module RakutenService
     private
 
     def create_message(message, items)
-      return "症状:「#{message}」にはこちらの薬がおすすめです！\n\n#{items}"
+      medicines = items.map do | item |
+        "#{item[:name]}, ¥#{item[:price]} \n #{item[:itemUrl]} \n"
+      end
+      return "症状:「#{message}」にはこちらの薬がおすすめです！\n\n#{medicines.join()}"
     end
   end
 end
