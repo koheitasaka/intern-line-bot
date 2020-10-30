@@ -26,11 +26,7 @@ class WebhookController < ApplicationController
         when Line::Bot::Event::MessageType::Text
           begin
             items = RakutenService::Request.exec(event.message['text'])
-            parsed_items = RakutenService::Parse.exec(items)
-            medicines = parsed_items.map do | item |
-              puts item
-              Medicine.new(item)
-            end
+            medicines = RakutenService::Parse.exec(items)
             reply_message = RakutenService::CreateMessage.exec(medicines)
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect

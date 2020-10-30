@@ -16,12 +16,14 @@ module RakutenService
 
     def parse_item(items)
       items.first(MAX_ITEM_COUNT).map do |item|
-        {
-          name: item['itemName'],
-          price: item['itemPrice'],
-          url: item['itemUrl'],
-          imageUrl: item['mediumImageUrls'][0],
-        }
+        medicine = Medicine.new(
+          item['itemName'],
+          item['itemPrice'],
+          item['itemUrl'],
+          item['mediumImageUrls'][0],
+        )
+        raise ResponseError if medicine.invalid?
+        medicine
       end
     end
   end
