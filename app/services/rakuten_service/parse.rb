@@ -19,7 +19,8 @@ module RakutenService
         {
           name: item['itemName'],
           price: item['itemPrice'],
-          itemUrl: item['itemUrl'],
+          url: item['itemUrl'],
+          imageUrl: item['mediumImageUrls'][0],
         }
       end
     end
