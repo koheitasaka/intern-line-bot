@@ -25,12 +25,19 @@ class WebhookController < ApplicationController
         case event.type
         when Line::Bot::Event::MessageType::Text
           message = {
-            type: 'text'
+            type: 'text',
           }
-          if (event.message['text'] == '頭が痛いです')
-            message['text'] = 'お大事に'
-          else
-            message['text'] = '元気そうですね！'
+          begin
+            items = RakutenService::Request.exec(event.message['text'])
+            parsed_items = RakutenService::Parse.exec(items)
+            reply_message = RakutenService::CreateMessage.exec(event.message['text'], parsed_items)
+            message['text'] = reply_message
+          rescue RakutenWebService::WrongParameter => exception
+            puts exception.inspect
+            message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
+          rescue ItemNotFoundError => exception
+            puts exception
+            message['text'] = exception.message
           end
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
