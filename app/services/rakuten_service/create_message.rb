@@ -15,20 +15,20 @@ module RakutenService
     def create_message(items)
       columns = items.map do | item |
         {
-          "thumbnailImageUrl": item[:imageUrl],
+          "thumbnailImageUrl": item.image_url,
           "imageBackgroundColor": "#FFFFFF",
-          "title": "#{item[:name].slice(0,30)}...",
-          "text": "¥#{item[:price]}\n#{item[:name]}",
+          "title": "#{item.name.slice(0,30)}...",
+          "text": "¥#{item.price}\n#{item.name}",
           "defaultAction": {
             "type": "uri",
             "label": "商品ページへ",
-            "uri": item[:url]
+            "uri": item.url
           },
           "actions": [
             {
               "type": "uri",
               "label": "商品ページへ",
-              "uri": item[:url]
+              "uri": item.url
             }
           ]
         }

@@ -27,11 +27,11 @@ class WebhookController < ApplicationController
           begin
             items = RakutenService::Request.exec(event.message['text'])
             parsed_items = RakutenService::Parse.exec(items)
-            parsed_items = parsed_items.map do | item |
+            medicines = parsed_items.map do | item |
+              puts item
               Medicine.new(item)
             end
-            reply_message = RakutenService::CreateMessage.exec(parsed_items)
-            message['text'] = reply_message
+            reply_message = RakutenService::CreateMessage.exec(medicines)
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
             reply_message = ErrorMessageService::Create.exec("メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）")
