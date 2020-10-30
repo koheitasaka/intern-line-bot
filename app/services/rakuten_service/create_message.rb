@@ -2,22 +2,47 @@ module RakutenService
   class CreateMessage
     include Service
 
-    def initialize(message, items)
-      @message = message
+    def initialize(items)
       @items = items
     end
 
     def exec
-      create_message(@message, @items)
+      create_message(@items)
     end
 
     private
 
-    def create_message(message, items)
-      medicines = items.map do | item |
-        "#{item.name}, ¥#{item.price} \n #{item.url} \n"
+    def create_message(items)
+      columns = items.map do | item |
+        {
+          "thumbnailImageUrl": item[:imageUrl],
+          "imageBackgroundColor": "#FFFFFF",
+          "title": "#{item[:name].slice(0,30)}...",
+          "text": "¥#{item[:price]}\n#{item[:name]}",
+          "defaultAction": {
+            "type": "uri",
+            "label": "商品ページへ",
+            "uri": item[:url]
+          },
+          "actions": [
+            {
+              "type": "uri",
+              "label": "商品ページへ",
+              "uri": item[:url]
+            }
+          ]
+        }
       end
-      "症状:「#{message}」にはこちらの薬がおすすめです！\n\n#{medicines.join()}"
+      {
+        "type": "template",
+        "altText": "こちらの薬がおすすめです！",
+        "template": {
+          "type": "carousel",
+          "columns": columns,
+          "imageAspectRatio": "rectangle",
+          "imageSize": "cover"
+        }
+      }
     end
   end
 end

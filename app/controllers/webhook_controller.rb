@@ -24,25 +24,22 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          message = {
-            type: 'text',
-          }
           begin
             items = RakutenService::Request.exec(event.message['text'])
             parsed_items = RakutenService::Parse.exec(items)
             parsed_items = parsed_items.map do | item |
               Medicine.new(item)
             end
-            reply_message = RakutenService::CreateMessage.exec(event.message['text'], parsed_items)
+            reply_message = RakutenService::CreateMessage.exec(parsed_items)
             message['text'] = reply_message
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
-            message['text'] = "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
+            reply_message = ErrorMessageService::Create.exec("メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）")
           rescue ItemNotFoundError => exception
             puts exception
-            message['text'] = exception.message
+            reply_message = ErrorMessageService::Create.exec(exception.message)
           end
-          client.reply_message(event['replyToken'], message)
+          client.reply_message(event['replyToken'], reply_message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
           response = client.get_message_content(event.message['id'])
           tf = Tempfile.open("content")
