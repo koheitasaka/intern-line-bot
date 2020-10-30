@@ -2,19 +2,20 @@ module RakutenService
   class Parse
     include Service
 
+    MAX_ITEM_COUNT = 5
+
     def initialize(items)
       @items = items
     end
 
     def exec
-      parsed_items = parse_item(@items)
-      return parsed_items
+      parse_item(@items)
     end
 
     private
 
     def parse_item(items)
-      parsed_items = items.first(5).map do |item|
+      items.first(MAX_ITEM_COUNT).map do |item|
         {
           name: item['itemName'],
           price: item['itemPrice'],
@@ -22,7 +23,6 @@ module RakutenService
           imageUrl: item['mediumImageUrls'][0],
         }
       end
-      return parsed_items
     end
   end
 end

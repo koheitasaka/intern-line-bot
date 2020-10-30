@@ -7,8 +7,7 @@ module RakutenService
     end
 
     def exec
-      reply_message = create_message(@items)
-      return reply_message
+      create_message(@items)
     end
 
     private
