@@ -30,16 +30,10 @@ class WebhookController < ApplicationController
             reply_message = RakutenService::CreateMessage.exec(parsed_items)
           rescue RakutenWebService::WrongParameter => exception
             puts exception.inspect
-            reply_message = {
-              type: 'text',
-              text: "メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）"
-            }
+            reply_message = ErrorMessageService::Create.exec("メッセージをお確かめの上、もう一度送信してください！\n（例: 「頭痛」「吐き気」「発熱」）")
           rescue ItemNotFoundError => exception
             puts exception
-            reply_message = {
-              type: 'text',
-              text: exception.message
-            }
+            reply_message = ErrorMessageService::Create.exec(exception.message)
           end
           client.reply_message(event['replyToken'], reply_message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
