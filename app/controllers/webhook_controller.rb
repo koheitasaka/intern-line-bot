@@ -34,6 +34,9 @@ class WebhookController < ApplicationController
           rescue ItemNotFoundError => exception
             puts exception
             reply_message = ErrorMessageService::Create.exec(exception.message)
+          rescue ResponseError => exception
+            puts exception
+            reply_message = ErrorMessageService::Create.exec(exception.message)
           end
           client.reply_message(event['replyToken'], reply_message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video

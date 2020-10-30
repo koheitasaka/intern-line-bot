@@ -22,7 +22,7 @@ module RakutenService
           item['itemUrl'],
           item['mediumImageUrls'][0],
         )
-        raise ResponseError if medicine.invalid?
+        raise ResponseError.new('正しくデータを取得することができませんでした') if medicine.invalid?
         medicine
       end
     end
