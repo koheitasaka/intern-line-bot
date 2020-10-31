@@ -14,7 +14,7 @@ module RakutenService
 
     def create_message(items)
       medicines = items.map do | item |
-        "#{item[:name]}, ¥#{item[:price]} \n #{item[:itemUrl]} \n"
+        "#{item[:name]}, ¥#{item[:price]} \n #{item[:url]} \n"
       end
       {
         type: 'text',
