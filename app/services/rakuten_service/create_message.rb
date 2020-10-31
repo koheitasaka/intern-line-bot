@@ -13,35 +13,12 @@ module RakutenService
     private
 
     def create_message(items)
-      columns = items.map do | item |
-        {
-          "thumbnailImageUrl": item[:imageUrl],
-          "imageBackgroundColor": "#FFFFFF",
-          "title": "#{item[:name].slice(0,30)}...",
-          "text": "¥#{item[:price]}\n#{item[:name]}",
-          "defaultAction": {
-            "type": "uri",
-            "label": "商品ページへ",
-            "uri": item[:url]
-          },
-          "actions": [
-            {
-              "type": "uri",
-              "label": "商品ページへ",
-              "uri": item[:url]
-            }
-          ]
-        }
+      medicines = items.map do | item |
+        "#{item[:name]}, ¥#{item[:price]} \n #{item[:itemUrl]} \n"
       end
       {
-        "type": "template",
-        "altText": "こちらの薬がおすすめです！",
-        "template": {
-          "type": "carousel",
-          "columns": columns,
-          "imageAspectRatio": "rectangle",
-          "imageSize": "cover"
-        }
+        type: 'text',
+        text: "こちらの薬がおすすめです！\n\n#{medicines.join()}"
       }
     end
   end
